@@ -1,6 +1,9 @@
 {
   "name": "hero",
   "version": "1.0.0",
+  "engines": {
+    "node": "12.16.1"
+  },
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -13,9 +16,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.20.0",
     "body-parser": "^1.18.3",
     "dialogflow": "^0.8.2",
     "express": "^4.16.4",
+    "mongodb": "^3.6.2",
+    "mongoose": "^5.10.9",
     "request": "^2.88.0",
     "uuid": "^3.3.2"
   }

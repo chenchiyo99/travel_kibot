@@ -1,8 +1,8 @@
 module.exports = {
-    FB_PAGE_TOKEN: 'EAAknBKKn5usBANfOG5jBl3UTHwZCV5wVZBM1NGdodvmiE3yZA5oyRlhHuZC68UHwEYh4QDCaEuKY3fCUULrfhYhTyn3V40Sq1TvJ0WV4tPJYtJPFzNmxnj6xRBJNjZB0P52t8KZB6VpxIllQLr5zNnrPoEGkGV18TQXRGR6UrE9O9qdipWSzod',
+    FB_PAGE_TOKEN: 'EAALbF8bWj6wBADipbO0ofbYj399eWV8eyFzxz67JcuzeOXKjd69eudjZA1oYB2tbZCZAWdU11PwZAXu5ipcyynOZBs6XnZAObjIKPBMddoZB8BqydlsInZCAHeSr5aTAMylD5akkA1ySmj2CrFl345nEEnUGdQZCiqwregnM8aIcwWK2x2JTZA0xau',
     FB_VERIFY_TOKEN: 'abc',
-    FB_APP_SECRET: '7c9a27309dc9ec4d8e90e798980f2292',
-    SERVER_URL: 'https://9d1e8c56.ngrok.io',
+    FB_APP_SECRET: '4630fb78b4e41bbb49fb612158123d54',
+    SERVER_URL: 'https://d20d1703.ngrok.io',
     GOOGLE_PROJECT_ID: 'kibot-tkwefa',
     DF_LANGUAGE_CODE: 'zh-tw',
     GOOGLE_CLIENT_EMAIL: 'ccitnibot@kibot-tkwefa.iam.gserviceaccount.com',

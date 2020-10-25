@@ -1,5 +1,6 @@
-'use strict';
+   'use strict';
 
+const axios = require('axios');
 const dialogflow = require('dialogflow');
 const config = require('./config');
 const express = require('express');
@@ -8,7 +9,24 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const app = express();
 const uuid = require('uuid');
+const wapikey = "CWB-9CF20E34-2234-49C1-8561-1E70869054E4";
+const wurl = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001';
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
 
+function mongos(q){
+	var result;
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("POIDB");
+  dbo.collection("POI").find({q}).toArray(function(err,mr) {
+    if (err) throw err;
+    result = mr;
+    db.close();
+  });
+});
+	return result;
+}
 
 // Messenger API parameters
 if (!config.FB_PAGE_TOKEN) {
@@ -186,7 +204,7 @@ function receivedMessage(event) {
 
 function handleMessageAttachments(messageAttachments, senderID){
     //for now just reply
-    sendTextMessage(senderID, "Attachment received. Thank you.");
+    sendTextMessage(senderID, "附件已收到. 謝謝你.");
 }
 
 function handleQuickReply(senderID, quickReply, messageId) {
@@ -318,15 +336,31 @@ function handleDialogFlowResponse(sender, response) {
 
     sendTypingOff(sender);
 
+    console.log(response);
+
     if (isDefined(action)) {
+    	console.log("DFRaction");
         handleDialogFlowAction(sender, action, messages, contexts, parameters);
     } else if (isDefined(messages)) {
+    	console.log("DFRmessage");
         handleMessages(messages, sender);
     } else if (responseText == '' && !isDefined(action)) {
         //dialogflow could not evaluate input.
-        sendTextMessage(sender, "I'm not sure what you want. Can you be more specific?");
+        console.log("undefined");
+        sendTextMessage(sender, "不好意思我不太確定你的意思。是否能夠再説的明白一點?");
     } else if (isDefined(responseText)) {
+    	console.log("DFRresponseText");
         sendTextMessage(sender, responseText);
+    }
+    console.log("endif");
+        switch (response.intent.name) {
+        case 'projects/kibot-tkwefa/agent/intents/e2ae1ba6-4299-40b0-b55d-c303c1139658': //Attractions recom
+            console.log("Attractions");
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/cb63052a-82d8-4965-8892-cabef724d058': //Attractions recom
+            console.log("Weather");
+            
+            break;
     }
 }
 
@@ -864,3 +898,54 @@ function isDefined(obj) {
 app.listen(app.get('port'), function () {
     console.log('running on port', app.get('port'))
 })
+
+
+// request(`${wurl}?Authorization=CWB-9CF20E34-2234-49C1-8561-1E70869054E4&locationName=%E5%AE%9C%E8%98%AD%E7%B8%A3`, function (error, response, body) {
+//   console.log(JSON.parse(body).records.location[0].weatherElement[0]);
+// });
+
+
+// let apiResponse;
+
+// axios.get(`${wurl}?Authorization=CWB-9CF20E34-2234-49C1-8561-1E70869054E4&locationName=%E5%AE%9C%E8%98%AD%E7%B8%A3`)
+// 				 .then(function(response) {
+//     apiResponse = response;
+//     console.log('Does this work?')
+//     console.log('apiResponse: ', apiResponse);
+//   })
+//   .catch(function (error) {
+//     console.log(error, 'Error');
+//   });
+// const getWeather = location => {
+// 	return new Promise(async (resolve, reject) => {
+// 		try {
+// 			const weatherConditions = await axios.get(
+// 				"https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?",
+// 				{
+// 					params: {
+// 						Authorization: wapikey,
+// 						locationName: location
+// 					}
+// 				});
+
+// 			resolve(formatData(weatherConditions.data));
+// 		} catch (error) {
+// 			reject(error);
+// 		}
+// 	}); 
+// }
+
+// const formatData = data => {
+// 	return {
+// 		location: `${data.location.name}, ${data.location.country}` ,
+// 		temperature: data.current.temperature
+// 		/*code: data.forecast.forecastday.map(day => {
+// 			return {
+// 				data: day.date,
+// 				code: dat.day.condition.code,
+// 				condition: day.day.condition.text
+// 			}
+// 		}
+// 		)*/
+// 	}
+// }
