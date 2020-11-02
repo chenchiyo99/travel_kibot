@@ -13,20 +13,12 @@ const wapikey = "CWB-9CF20E34-2234-49C1-8561-1E70869054E4";
 const wurl = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001';
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
+var searchtype;
+var formonmessage,mongotemp,mongoresult,getwresult;
+var sender = 2708331595942685;
+var regex;
 
-function mongos(q){
-	var result;
-MongoClient.connect(url, function(err, db) {
-  if (err) throw err;
-  var dbo = db.db("POIDB");
-  dbo.collection("POI").find({q}).toArray(function(err,mr) {
-    if (err) throw err;
-    result = mr;
-    db.close();
-  });
-});
-	return result;
-}
+
 
 // Messenger API parameters
 if (!config.FB_PAGE_TOKEN) {
@@ -160,6 +152,257 @@ app.post('/webhook/', function (req, res) {
 
 
 
+
+
+
+function getWeather(location){
+	return new Promise(async (resolve, reject) => {
+		try {
+			const weatherConditions = await axios.get(
+				"https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001",
+				{
+					params: {
+						Authorization: "CWB-9CF20E34-2234-49C1-8561-1E70869054E4",
+						locationName: location
+					}
+				});
+
+			resolve(weatherConditions.data);
+			getwresult = weatherConditions.data.records;
+			const ln = getwresult.location[0].locationName;
+			const wx06 = getwresult.location[0].weatherElement[0].time[0].parameter.parameterName;
+			const wx12 = getwresult.location[0].weatherElement[0].time[1].parameter.parameterName;
+			const wx18 = getwresult.location[0].weatherElement[0].time[2].parameter.parameterName;
+			const pop06 = getwresult.location[0].weatherElement[1].time[0].parameter.parameterName+"%"; 
+			const pop12 = getwresult.location[0].weatherElement[1].time[1].parameter.parameterName+"%";
+			const pop18 = getwresult.location[0].weatherElement[1].time[2].parameter.parameterName+"%";
+			const mint06 = getwresult.location[0].weatherElement[2].time[0].parameter.parameterName+"度C";
+			const mint12 = getwresult.location[0].weatherElement[2].time[1].parameter.parameterName+"度C";
+			const mint18 = getwresult.location[0].weatherElement[2].time[2].parameter.parameterName+"度C";
+			const ci06 = getwresult.location[0].weatherElement[3].time[0].parameter.parameterName; 
+			const ci12 = getwresult.location[0].weatherElement[3].time[1].parameter.parameterName;
+			const ci18 = getwresult.location[0].weatherElement[3].time[2].parameter.parameterName;
+			const maxt06 = getwresult.location[0].weatherElement[4].time[0].parameter.parameterName+"度C";
+			const maxt12 = getwresult.location[0].weatherElement[4].time[1].parameter.parameterName+"度C";
+			const maxt18 = getwresult.location[0].weatherElement[4].time[2].parameter.parameterName+"度C";
+			const clothes="no",rain="no"; 
+			if(getwresult.location[0].weatherElement[2].time[0].parameter.parameterName < 15)
+			{
+				if(getwresult.location[0].weatherElement[1].time[0].parameter.parameterName == 0)
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");	
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = ;
+				
+			}
+			else if(getwresult.location[0].weatherElement[1].time[0].parameter.parameterName < 30)
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"降雨機率不高，不過還是建議帶把傘");	
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "降雨機率不高，不過還是建議帶把傘";
+				
+			}
+			else
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"近期很可能會下雨，請記得帶傘");
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "近期很可能會下雨，請記得帶傘";
+				
+			}
+				// clothes = "今天溫度比較低建議要帶外套";
+				
+			}
+			else if(getwresult.location[0].weatherElement[2].time[0].parameter.parameterName > 26)
+			{
+				if(getwresult.location[0].weatherElement[1].time[0].parameter.parameterName == 0)
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天氣溫炎熱，多補充水分避免中暑"+"\n"+"看起來不會下雨，挺適合出門的哦~");				
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "看起來不會下雨，挺適合出門的哦~";
+				
+			}
+			else if(getwresult.location[0].weatherElement[1].time[0].parameter.parameterName < 30)
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天氣溫炎熱，多補充水分避免中暑"+"\n"+"降雨機率不高，不過還是建議帶把傘");
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "降雨機率不高，不過還是建議帶把傘";
+				
+			}
+			else
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天氣溫炎熱，多補充水分避免中暑"+"\n"+"近期很可能會下雨，請記得帶傘");
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "近期很可能會下雨，請記得帶傘";
+				
+			}
+				// clothes = "今天氣溫炎熱，多補充水分避免中暑";
+				
+			}
+			else
+			{
+				if(getwresult.location[0].weatherElement[1].time[0].parameter.parameterName == 0)
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天天氣氣溫宜人，可以搭配心情自由穿搭"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "看起來不會下雨，挺適合出門的哦~";
+				
+			}
+			else if(getwresult.location[0].weatherElement[1].time[0].parameter.parameterName < 30)
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天天氣氣溫宜人，可以搭配心情自由穿搭"+"\n"+"降雨機率不高，不過還是建議帶把傘");
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "降雨機率不高，不過還是建議帶把傘";
+				
+			}
+			else
+			{
+				sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天天氣氣溫宜人，可以搭配心情自由穿搭"+"\n"+"近期很可能會下雨，請記得帶傘");
+				// sendTextMessage(sender,ln+"未來36小時的天氣預報如下"+"\n"+"12小時内天氣預報資訊:"+wx06+"\n"+"24小時内天氣預報資訊:"+wx12+"\n"+"36小時内天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+"今天溫度比較低建議要帶外套"+"\n"+"看起來不會下雨，挺適合出門的哦~");
+				// rain = "近期很可能會下雨，請記得帶傘";
+				
+			}
+				// clothes = "今天天氣氣溫宜人，可以搭配心情自由穿搭";
+				
+			}
+			
+			// +"未來36小時的天氣預報如下"+"\n"+"12小時内："+"\n"+"天氣預報資訊:"+wx06
+			// +"\n"+"24小時内："+"\n"+"天氣預報資訊:"+wx12+"\n"+"36小時内："+"\n"+"天氣預報資訊:"+wx18+"\n"+"預報告訴我們天氣感受將會是"+ci06+"的"+"\n"+clothes+"\n"+rain
+		} catch (error) {
+			reject(error);
+		}
+	}); 
+}
+
+
+
+
+
+
+var trim = function(str){
+var trimLeft = /^\s+/,
+trimRight = /\s+$/;
+return str.replace( trimLeft, "" ).replace( trimRight, "" );
+};
+
+
+//臺北婦女館地圖資料https://www.google.com/maps/search/?api=1&query=25.033459,121.501280&query_place_id=ChIJaRFJC6-pQjQRx9I-a2QVtYI
+
+
+//find intent type with (response.intent.name),normally use getintent(response.intent.name);
+function getintent(getintentinput,messages){
+switch (getintentinput) {
+        case 'projects/kibot-tkwefa/agent/intents/e2ae1ba6-4299-40b0-b55d-c303c1139658': //好無聊，可以去哪裏
+            console.log("Backend Intent:好無聊，可以去哪裏");
+            // return "getrandom";
+            formonmessage = trim(formonmessage);
+            Mongos("getrandom",formonmessage);
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/bd776b51-4192-45d1-99d1-d4c8db33bfc5': //地圖資料-哪裡可以從事什麼活動
+            console.log("Backend Intent:地圖資料-哪裡可以從事什麼活動");
+            sendTextMessage(sender,"你可以使用以下地點資訊");
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/2628fa97-f8f7-44cd-9bdd-636ff9ae47a2': //地圖資料-從某地導航到某地
+            console.log("Backend Intent:地圖資料-從某地導航到某地");
+            sendTextMessage(sender,"你可以使用以下地點資訊");
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/b11f2db0-994b-4546-9cc0-e061cb90ee7d': //地圖資料-時間
+            console.log("Backend Intent:地圖資料-時間");
+            sendTextMessage(sender,"你可以使用以下地點資訊");
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/c765c398-16ef-4b63-88e8-a0bbb8ad1af7': //地圖資料-距離
+            console.log("Backend Intent:地圖資料-距離");
+            sendTextMessage(sender,"你可以使用以下地點資訊");
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/46b4fe80-20aa-41e7-a127-b14c2ea5a1e6': //地圖資料-路線
+            console.log("Backend Intent:地圖資料-路線");
+            sendTextMessage(sender,"你可以使用以下地點資訊");
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/a4cbdc4e-f66e-47ea-89b3-d0bdd6cfe9dd': //天氣-天氣狀況
+            console.log("Backend Intent:天氣-天氣狀況");
+            formonmessage = trim(formonmessage);
+            sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
+            Mongos("getweather",formonmessage);
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/65889a6f-812b-407e-b4ca-966494edf23e': //天氣-某地+天氣狀況
+            console.log("Backend Intent:天氣-某地+天氣狀況");
+            formonmessage = trim(formonmessage);
+            sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
+            Mongos("getweather",formonmessage);
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/1d5fdd51-8117-467b-a1ce-22d82e4dd0cf': //天氣-某地+某時間點+狀況
+            console.log("Backend Intent:天氣-某地+某時間點+狀況");
+            formonmessage = trim(formonmessage);
+			sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
+            Mongos("getweather",formonmessage);
+            break;
+        case 'projects/kibot-tkwefa/agent/intents/cb63052a-82d8-4965-8892-cabef724d058': //天氣-某時間點+某地+狀況
+            console.log("Backend Intent:天氣-某時間點+某地+狀況");
+            formonmessage = trim(formonmessage);
+            sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
+            Mongos("getweather",formonmessage);
+            break;
+        default:
+        	handleMessages(messages, sender);
+        	break;
+    }
+}
+
+
+
+//MongoDB Query Function with switch case TT
+var Mongos=function (cat,q,callback) {
+MongoClient.connect(url,async function(err, db) {
+
+switch (cat){
+
+	case "getrandom":
+		regex = new RegExp(q,'g')
+		if (err) throw err;
+		var dbo = db.db("POIDB");
+		// const m=dbo.collection("POI").count({"address":/q/});
+		// .skip(dbo.collection("POI").count({"address":/q/})).next()
+		dbo.collection("POI").find({"address":regex}).limit(-1).toArray(function(err,result) {
+		if (err) throw err;
+		db.close();
+		mongoresult = "我推薦你去"+result[0].stitle+"\n"+"地址在："+result[0].address;
+		sendTextMessage(sender,mongoresult);
+		});
+		break;
+	case "getweather":
+		// regex = new RegExp(q,'g')
+		regex = "/"+q+"/";
+		if (err) throw err;
+		var dbo = db.db("POIDB");
+		// const m=dbo.collection("POI").count({"address":/q/});
+		// .skip(dbo.collection("POI").count({"address":/q/})).next()
+		dbo.collection("LocationDB").find({"similar":/北投/}).toArray(function(err,result) {
+		if (err) throw err;
+		db.close();
+		console.log(result);
+		mongoresult = result[0].location;
+		getWeather(mongoresult);
+		});
+		break;
+	case "getll"://還沒準備好
+		regex = new RegExp(q,'g')
+		if (err) throw err;
+		var dbo = db.db("POIDB");
+		// const m=dbo.collection("POI").count({"address":/q/});
+		// .skip(dbo.collection("POI").count({"address":/q/})).next()
+		dbo.collection("POI").find({"address":regex}).limit(-1).toArray(function(err,result) {
+		if (err) throw err;
+		db.close();
+		mongoresult = "我推薦你去"+result[0].stitle+"\n"+"地址在："+result[0].address;
+		sendTextMessage(sender,mongoresult);
+		});
+		break;
+	default:
+		break;
+}
+
+
+})
+}
 
 function receivedMessage(event) {
 
@@ -336,14 +579,23 @@ function handleDialogFlowResponse(sender, response) {
 
     sendTypingOff(sender);
 
-    console.log(response);
+    //要看意圖資訊用這個
+    // console.log(response);
 
     if (isDefined(action)) {
     	console.log("DFRaction");
         handleDialogFlowAction(sender, action, messages, contexts, parameters);
     } else if (isDefined(messages)) {
     	console.log("DFRmessage");
-        handleMessages(messages, sender);
+    	if(response.allRequiredParamsPresent==true)
+    	{
+    		formonmessage = response.fulfillmentText;
+    		getintent(response.intent.name,messages);
+    	}
+    	else
+    	{
+    		handleMessages(messages, sender);
+    	}
     } else if (responseText == '' && !isDefined(action)) {
         //dialogflow could not evaluate input.
         console.log("undefined");
@@ -352,16 +604,8 @@ function handleDialogFlowResponse(sender, response) {
     	console.log("DFRresponseText");
         sendTextMessage(sender, responseText);
     }
-    console.log("endif");
-        switch (response.intent.name) {
-        case 'projects/kibot-tkwefa/agent/intents/e2ae1ba6-4299-40b0-b55d-c303c1139658': //Attractions recom
-            console.log("Attractions");
-            break;
-        case 'projects/kibot-tkwefa/agent/intents/cb63052a-82d8-4965-8892-cabef724d058': //Attractions recom
-            console.log("Weather");
-            
-            break;
-    }
+    // console.log("endif");
+    console.log(response);
 }
 
 async function sendToDialogFlow(sender, textString, params) {
@@ -411,6 +655,7 @@ function sendTextMessage(recipientId, text) {
             text: text
         }
     }
+    console.log(searchtype);
     callSendAPI(messageData);
 }
 
@@ -897,7 +1142,7 @@ function isDefined(obj) {
 // Spin up the server
 app.listen(app.get('port'), function () {
     console.log('running on port', app.get('port'))
-})
+});
 
 
 // request(`${wurl}?Authorization=CWB-9CF20E34-2234-49C1-8561-1E70869054E4&locationName=%E5%AE%9C%E8%98%AD%E7%B8%A3`, function (error, response, body) {
