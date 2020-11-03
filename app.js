@@ -12,7 +12,7 @@ const uuid = require('uuid');
 const wapikey = "CWB-9CF20E34-2234-49C1-8561-1E70869054E4";
 const wurl = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001';
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb+srv://chenchiyo99:cocochiyo99@cluster0.w0yom.gcp.mongodb.net/POIDB?retryWrites=true&w=majority";
+var url = "mongodb+srv://chenchiyo99:cocochiyo99@cluster0.w0yom.gcp.mongodb.net/anything?retryWrites=true&w=majority";
 var searchtype;
 var formonmessage,mongotemp,mongoresult,getwresult;
 var sender = 2708331595942685;
