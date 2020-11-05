@@ -329,7 +329,7 @@ function getDirection(location1,location2,dtype){
 				});
 
 			resolve(Directions.data);
-			sendTextMessage(sender,"建議你採取這個路線"+"\n"+"讓我帶你去導航介面吧"+"\n"+"https://www.google.com/maps/dir/"+location1+"/"+location2);
+			sendTextMessage(sender,"爲了更快速解決你的問題"+"\n"+"讓我帶你去導航介面吧"+"\n"+"https://www.google.com/maps/dir/"+location1+"/"+location2);
 			
 		} catch (error) {
 			reject(error);
