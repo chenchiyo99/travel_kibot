@@ -323,13 +323,13 @@ function getDirection(location1,location2,dtype){
 					params: {
 						origin: location1,
 						destination: location2,
-						mode: "transit",
+						// mode: "transit",
 						key: "AIzaSyDRRW_RtDdJ88PuhjzcUnCqzupzQSse_m0"
 					}
 				});
 
 			resolve(Directions.data);
-			sendTextMessage(sender,"還沒完成");
+			sendTextMessage(sender,"建議你採取這個路線"+"\n"+"讓我帶你去導航介面吧"+"\n"+"https://www.google.com/maps/dir/"+location1+"/"+location2);
 			
 		} catch (error) {
 			reject(error);
