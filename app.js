@@ -155,7 +155,7 @@ app.post('/webhook/', function (req, res) {
 
 
 
-function getWeather(location){
+function getWeather(location,searchtime){
 	return new Promise(async (resolve, reject) => {
 		try {
 			const weatherConditions = await axios.get(
@@ -168,6 +168,7 @@ function getWeather(location){
 				});
 
 			resolve(weatherConditions.data);
+
 			getwresult = weatherConditions.data.records;
 			const ln = getwresult.location[0].locationName;
 			const wx06 = getwresult.location[0].weatherElement[0].time[0].parameter.parameterName;
@@ -275,6 +276,84 @@ function getWeather(location){
 
 
 
+function getDirection(location1,location2,dtype){
+	switch(dtype)
+	{
+
+	case "getD":
+	return new Promise(async (resolve, reject) => {
+		try {
+			const Directions = await axios.get(
+				"https://maps.googleapis.com/maps/api/directions/json",
+				{
+					params: {
+						origin: location1,
+						destination: location2,
+						mode: "transit",
+						key: "AIzaSyDRRW_RtDdJ88PuhjzcUnCqzupzQSse_m0"
+					}
+				});
+
+			resolve(Directions.data);
+			sendTextMessage(sender,"還沒完成");
+			
+		} catch (error) {
+			reject(error);
+		}
+	}); 
+	break;
+	case "findt":
+	return new Promise(async (resolve, reject) => {
+		try {
+			const Directions = await axios.get(
+				"https://maps.googleapis.com/maps/api/directions/json",
+				{
+					params: {
+						origin: location1,
+						destination: location2,
+						mode: "transit",
+						key: "AIzaSyDRRW_RtDdJ88PuhjzcUnCqzupzQSse_m0"
+					}
+				});
+
+			resolve(Directions.data);
+			sendTextMessage(sender,"這段路程將會耗時"+Directions.data.routes[0].legs[0].duration.text);
+			
+		} catch (error) {
+			reject(error);
+		}
+	}); 
+	break;
+	case "findd":
+	return new Promise(async (resolve, reject) => {
+		try {
+			const Directions = await axios.get(
+				"https://maps.googleapis.com/maps/api/directions/json",
+				{
+					params: {
+						origin: location1,
+						destination: location2,
+						mode: "transit",
+						key: "AIzaSyDRRW_RtDdJ88PuhjzcUnCqzupzQSse_m0"
+					}
+				});
+
+			resolve(Directions.data);
+			sendTextMessage(sender,"這段路程長度爲"+Directions.data.routes[0].legs[0].distance.text);
+			
+		} catch (error) {
+			reject(error);
+		}
+	}); 
+	break;
+	default:
+	break;
+
+
+
+}}
+
+
 
 
 
@@ -297,25 +376,43 @@ switch (getintentinput) {
             formonmessage = trim(formonmessage);
             Mongos("getrandom",formonmessage);
             break;
-        case 'projects/kibot-tkwefa/agent/intents/bd776b51-4192-45d1-99d1-d4c8db33bfc5': //地圖資料-哪裡可以從事什麼活動
-            console.log("Backend Intent:地圖資料-哪裡可以從事什麼活動");
-            sendTextMessage(sender,"你可以使用以下地點資訊");
-            break;
+        // case 'projects/kibot-tkwefa/agent/intents/bd776b51-4192-45d1-99d1-d4c8db33bfc5': //地圖資料-哪裡可以從事什麼活動
+        //     console.log("Backend Intent:地圖資料-哪裡可以從事什麼活動");
+        //     sendTextMessage(sender,"你可以使用以下地點資訊...");
+        //     break;
         case 'projects/kibot-tkwefa/agent/intents/2628fa97-f8f7-44cd-9bdd-636ff9ae47a2': //地圖資料-從某地導航到某地
             console.log("Backend Intent:地圖資料-從某地導航到某地");
-            sendTextMessage(sender,"你可以使用以下地點資訊");
+            sendTextMessage(sender,"你可以使用以下地點資訊...");
+            formonmessage=formonmessage.toString().split(",");
+            for(var i=0;i<formonmessage.length;i++)
+            {
+            	formonmessage[i] = trim(formonmessage[i]);
+            }
+            getDirection(formonmessage[0],formonmessage[1],"getD");
             break;
         case 'projects/kibot-tkwefa/agent/intents/b11f2db0-994b-4546-9cc0-e061cb90ee7d': //地圖資料-時間
             console.log("Backend Intent:地圖資料-時間");
-            sendTextMessage(sender,"你可以使用以下地點資訊");
+            sendTextMessage(sender,"計算時間中...");
+            formonmessage=formonmessage.toString().split(",");
+            for(var i=0;i<formonmessage.length;i++)
+            {
+            	formonmessage[i] = trim(formonmessage[i]);
+            }
+            getDirection(formonmessage[0],formonmessage[1],"findt");
             break;
         case 'projects/kibot-tkwefa/agent/intents/c765c398-16ef-4b63-88e8-a0bbb8ad1af7': //地圖資料-距離
             console.log("Backend Intent:地圖資料-距離");
-            sendTextMessage(sender,"你可以使用以下地點資訊");
+            sendTextMessage(sender,"計算距離中...");
+            formonmessage=formonmessage.toString().split(",");
+            for(var i=0;i<formonmessage.length;i++)
+            {
+            	formonmessage[i] = trim(formonmessage[i]);
+            }
+            getDirection(formonmessage[0],formonmessage[1],"findd");
             break;
         case 'projects/kibot-tkwefa/agent/intents/46b4fe80-20aa-41e7-a127-b14c2ea5a1e6': //地圖資料-路線
             console.log("Backend Intent:地圖資料-路線");
-            sendTextMessage(sender,"你可以使用以下地點資訊");
+            sendTextMessage(sender,"你可以使用以下地點資訊...");
             break;
         case 'projects/kibot-tkwefa/agent/intents/a4cbdc4e-f66e-47ea-89b3-d0bdd6cfe9dd': //天氣-天氣狀況
             console.log("Backend Intent:天氣-天氣狀況");
@@ -331,7 +428,11 @@ switch (getintentinput) {
             break;
         case 'projects/kibot-tkwefa/agent/intents/1d5fdd51-8117-467b-a1ce-22d82e4dd0cf': //天氣-某地+某時間點+狀況
             console.log("Backend Intent:天氣-某地+某時間點+狀況");
-            formonmessage = trim(formonmessage);
+            formonmessage=formonmessage.toString().split(",");
+            for(var i=0;i<formonmessage.length;i++)
+            {
+            	formonmessage[i] = trim(formonmessage[i]);
+            }
 			sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
             Mongos("getweather",formonmessage);
             break;
@@ -364,23 +465,34 @@ switch (cat){
 		dbo.collection("POI").find({"address":regex}).limit(-1).toArray(function(err,result) {
 		if (err) throw err;
 		db.close();
+		if(result[0] != undefined)
+		{
 		mongoresult = "我推薦你去"+result[0].stitle+"\n"+"地址在："+result[0].address;
 		sendTextMessage(sender,mongoresult);
+		}
+		else{
+			sendTextMessage(sender,"你所詢問的地點不在我的興趣點資料庫内，再試試別的看看");
+		}
 		});
 		break;
 	case "getweather":
-		// regex = new RegExp(q,'g')
-		regex = "/"+q+"/";
+		regex = new RegExp(q,'g')
 		if (err) throw err;
 		var dbo = db.db("POIDB");
 		// const m=dbo.collection("POI").count({"address":/q/});
 		// .skip(dbo.collection("POI").count({"address":/q/})).next()
-		dbo.collection("LocationDB").find({"similar":/北投/}).toArray(function(err,result) {
+		dbo.collection("LocationDB").find({"similar":regex}).toArray(function(err,result) {
 		if (err) throw err;
 		db.close();
 		console.log(result);
+		if(result[0] != undefined){
 		mongoresult = result[0].location;
 		getWeather(mongoresult);
+		}
+		else
+		{
+			sendTextMessage(sender,"抱歉我找不到資料，"+"\n"+"可能你問的區域不是我所認識的"+"\n"+"再試著問問看別的"+"\n"+"(另外我只服務台灣地區的使用者哦，所以記得別問我國外的地點，我會沒辦法回答。。)");
+		}
 		});
 		break;
 	case "getll"://還沒準備好
@@ -584,7 +696,15 @@ function handleDialogFlowResponse(sender, response) {
 
     if (isDefined(action)) {
     	console.log("DFRaction");
-        handleDialogFlowAction(sender, action, messages, contexts, parameters);
+    	if(response.action == 'input.unknown')
+    	{
+			sendTextMessage(sender,"判斷為input.unknown");
+    		handleDialogFlowAction(sender, action, messages, contexts, parameters);
+    	}
+    	else
+    	{
+   		    handleDialogFlowAction(sender, action, messages, contexts, parameters);
+    	}
     } else if (isDefined(messages)) {
     	console.log("DFRmessage");
     	if(response.allRequiredParamsPresent==true)
