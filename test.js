@@ -35,6 +35,33 @@ let { PythonShell } = require('python-shell')
 
 // app.get('/call/python', pythonProcess)
 
+function getGoogleSearch(Query){
+	return new Promise(async (resolve, reject) => {
+		try {
+			const Result = await axios.get(
+				"https://www.googleapis.com/customsearch/v1",
+				{
+					params: {
+						cx: "30186518590ab80b3",
+						key: "AIzaSyDRRW_RtDdJ88PuhjzcUnCqzupzQSse_m0",
+						q: Query
+					}
+				});
+
+			resolve(Result.data);
+			console.log(Result.data.queries.request);
+			for(var i = 0;i<5;i++)
+			{
+				
+			}
+			
+		} catch (error) {
+			reject(error);
+		}
+	}); 
+}
+
+
 function pythonProcess(req, res) {
   let options = {
     args:
@@ -71,7 +98,7 @@ function pprocess(crawlquery) {
 }
 
 
-pprocess('臺北市有什麽好吃的');
+// pprocess('臺北市有什麽好吃的');
 
 
 // var scraper = require('google-search-scraper');
@@ -355,7 +382,7 @@ function getDirection(location1,location2){
 				});
 
 			resolve(Directions.data);
-			
+			console.log(Directions.data);
 		} catch (error) {
 			reject(error);
 		}
@@ -366,16 +393,20 @@ function getDirection(location1,location2){
 
 // var query = "        信義";
 // query = trim(query);
+// console.log(query);
+// console.log(trim(query));
 var searchtype = "getrandom";
 
 
 
-// console.log(1);
-// console.log(query);
-// console.log(trim(query));
-// console.log(3);
+console.log(1);
+
+console.log(3);
+
+// Mongos("getrandom");
+getGoogleSearch("aiuwijbdcjbdas");
 // getDirection("臺北車站","新北市林口區東明一街55巷23號");
-// console.log(2);
+console.log(2);
 
 
 

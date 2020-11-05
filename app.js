@@ -152,6 +152,40 @@ app.post('/webhook/', function (req, res) {
 
 
 
+function getGoogleSearch(Query){
+	return new Promise(async (resolve, reject) => {
+		try {
+			const Result = await axios.get(
+				"https://www.googleapis.com/customsearch/v1",
+				{
+					params: {
+						cx: "30186518590ab80b3",
+						key: "AIzaSyDRRW_RtDdJ88PuhjzcUnCqzupzQSse_m0",
+						q: Query
+					}
+				});
+
+			resolve(Result.data);
+			console.log(Result.data);
+			if(Result.data.searchInformation.totalResults == '0')
+			{
+				sendTextMessage(sender,"我在Google上也找不到相關的資訊，可能要換個我能理解的説法。。。")
+			}
+			else
+			{
+				sendTextMessage(sender,"這些是我從Google上找到的幾個答案");
+				for(var i = 0;i<5;i++)
+				{
+					sendTextMessage(sender,Result.data.items[i].title+"\n"+Result.data.items[i].formattedUrl+"\n"+Result.data.items[i].snippet);
+				}
+			}
+		} catch (error) {
+			reject(error);
+		}
+	}); 
+}
+
+
 
 
 
@@ -698,8 +732,8 @@ function handleDialogFlowResponse(sender, response) {
     	console.log("DFRaction");
     	if(response.action == 'input.unknown')
     	{
-			sendTextMessage(sender,"判斷為input.unknown");
-    		handleDialogFlowAction(sender, action, messages, contexts, parameters);
+    		// handleDialogFlowAction(sender, action, messages, contexts, parameters);
+    		getGoogleSearch(response.queryText);
     	}
     	else
     	{
