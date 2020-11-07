@@ -467,9 +467,13 @@ switch (getintentinput) {
             break;
         case 'projects/kibot-tkwefa/agent/intents/1d5fdd51-8117-467b-a1ce-22d82e4dd0cf': //天氣-某地+某時間點+狀況
             console.log("Backend Intent:天氣-某地+某時間點+狀況");
-            formonmessage = trim(formonmessage);
             sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
-            Mongos("getweather",formonmessage);
+            formonmessage=formonmessage.toString().split(",");
+            for(var i=0;i<formonmessage.length;i++)
+            {
+            	formonmessage[i] = trim(formonmessage[i]);
+            }
+            Mongos("getweather",formonmessage[0]);
             break;
         case 'projects/kibot-tkwefa/agent/intents/cb63052a-82d8-4965-8892-cabef724d058': //天氣-某時間點+某地+狀況
             console.log("Backend Intent:天氣-某時間點+某地+狀況");
