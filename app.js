@@ -329,6 +329,8 @@ function getDirection(location1,location2,dtype){
 				});
 
 			resolve(Directions.data);
+			location1 = trimAll(location1);
+			location2 = trimAll(location2);
 			sendTextMessage(sender,"爲了更快速解決你的問題"+"\n"+"讓我帶你去導航介面吧"+"\n"+"https://www.google.com/maps/dir/"+location1+"/"+location2);
 			
 		} catch (error) {
@@ -397,7 +399,10 @@ trimRight = /\s+$/;
 return str.replace( trimLeft, "" ).replace( trimRight, "" );
 };
 
-
+var trimAll = function(str){
+var trimAll = /\s*/g;
+return str.replace(trimAll,"");
+};
 //臺北婦女館地圖資料https://www.google.com/maps/search/?api=1&query=25.033459,121.501280&query_place_id=ChIJaRFJC6-pQjQRx9I-a2QVtYI
 
 
@@ -462,12 +467,8 @@ switch (getintentinput) {
             break;
         case 'projects/kibot-tkwefa/agent/intents/1d5fdd51-8117-467b-a1ce-22d82e4dd0cf': //天氣-某地+某時間點+狀況
             console.log("Backend Intent:天氣-某地+某時間點+狀況");
-            formonmessage=formonmessage.toString().split(",");
-            for(var i=0;i<formonmessage.length;i++)
-            {
-            	formonmessage[i] = trim(formonmessage[i]);
-            }
-			sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
+            formonmessage = trim(formonmessage);
+            sendTextMessage(sender,"將會爲您查詢我的天氣資料庫,請稍等~~");
             Mongos("getweather",formonmessage);
             break;
         case 'projects/kibot-tkwefa/agent/intents/cb63052a-82d8-4965-8892-cabef724d058': //天氣-某時間點+某地+狀況
