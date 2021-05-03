@@ -504,7 +504,9 @@ switch (cat){
 		dbo.collection("POI").find({"address":regex}).limit(-1).toArray(function(err,result) {
 		if (err) throw err;
 		db.close();
-		console.log(result);
+		console.log(result[0]);
+		console.log(result[1]);
+		console.log(result[2]);
 		if(result[0] != undefined)
 		{
 		mongoresult = "我推薦你去"+result[0].stitle+"\n"+"地址在："+result[0].address;
